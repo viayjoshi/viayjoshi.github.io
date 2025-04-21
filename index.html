@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Loshu Grid - Numerology</title>
+    <style>
+      body {
+        background-color: #121212;
+        color: #ffffff;
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 2rem;
+      }
+
+      h1 {
+        color: #00ffcc;
+        margin-bottom: 1rem;
+      }
+
+      input[type="date"],
+      input[type="text"],
+      select,
+      button {
+        padding: 10px;
+        font-size: 16px;
+        margin: 0.5rem;
+        background-color: #1e1e1e;
+        color: #ffffff;
+        border: 1px solid #333;
+        border-radius: 5px;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 80px);
+        grid-template-rows: repeat(3, 80px);
+        gap: 10px;
+        margin-top: 2rem;
+      }
+
+      .cell {
+        background-color: #1e1e1e;
+        border: 1px solid #00ffcc;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        border-radius: 5px;
+        padding: 5px;
+        text-align: center;
+        white-space: pre-wrap;
+        transition: background-color 0.3s;
+      }
+
+      .missing {
+        background-color: #ff4444 !important;
+        color: #000;
+      }
+
+      .info {
+        margin-top: 2rem;
+        max-width: 400px;
+        text-align: center;
+        font-size: 16px;
+        line-height: 1.5;
+        color: #cccccc;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Loshu Grid</h1>
+    <input type="date" id="dob" />
+    <select id="gender">
+      <option value="male">Male</option>
+      <option value="female">Female</option>
+    </select>
+    <button onclick="generateGrid()">Generate Grid</button>
+
+    <div class="grid" id="loshuGrid">
+      <div class="cell" id="cell4"></div>
+      <div class="cell" id="cell9"></div>
+      <div class="cell" id="cell2"></div>
+      <div class="cell" id="cell3"></div>
+      <div class="cell" id="cell5"></div>
+      <div class="cell" id="cell7"></div>
+      <div class="cell" id="cell8"></div>
+      <div class="cell" id="cell1"></div>
+      <div class="cell" id="cell6"></div>
+    </div>
+
+    <div class="info" id="info"></div>
+
+    <h2 style="margin-top: 3rem; color: #00ccff">
+      Chaldean Numerology - Name Calculator
+    </h2>
+    <input type="text" id="nameInput" placeholder="Enter your full name" />
+    <button onclick="calculateChaldean()">Calculate Name Number</button>
+    <div class="info" id="nameInfo"></div>
+
+    <script>
+      function reduceToSingleDigit(num) {
+        while (num > 9 && num !== 11 && num !== 22) {
+          num = num
+            .toString()
+            .split("")
+            .reduce((a, b) => a + parseInt(b), 0);
+        }
+        return num;
+      }
+
+      function generateGrid() {
+        const dobInput = document.getElementById("dob").value;
+        const gender = document.getElementById("gender").value;
+        if (!dobInput) {
+          alert("Please enter a valid date of birth.");
+          return;
+        }
+
+        const [year, month, day] = dobInput.split("-").map(Number);
+        const dobDigits = (
+          day.toString().padStart(2, "0") +
+          month.toString().padStart(2, "0") +
+          year.toString()
+        ).split("");
+
+        const mulank = reduceToSingleDigit(day);
+        const bhagyank = reduceToSingleDigit(
+          [...dobDigits].reduce((a, b) => a + parseInt(b), 0)
+        );
+
+        let kuaBase = reduceToSingleDigit(year);
+        let kuaNumber;
+        if (gender === "male") {
+          kuaNumber = 11 - kuaBase;
+        } else {
+          kuaNumber = kuaBase + 4;
+        }
+        kuaNumber = reduceToSingleDigit(kuaNumber);
+
+        const fullDigits = [...dobDigits];
+        if (day > 9) fullDigits.push(...mulank.toString());
+        fullDigits.push(...bhagyank.toString());
+        fullDigits.push(...kuaNumber.toString());
+
+        const grid = {
+          1: "",
+          2: "",
+          3: "",
+          4: "",
+          5: "",
+          6: "",
+          7: "",
+          8: "",
+          9: "",
+        };
+        for (const digit of fullDigits) {
+          if (digit === "0") continue;
+          grid[digit] += digit;
+        }
+
+        const missingNumbers = [];
+        const infoLines = [];
+
+        for (let i = 1; i <= 9; i++) {
+          const cell = document.getElementById(`cell${i}`);
+          if (!grid[i]) {
+            cell.classList.add("missing");
+            cell.innerText = i.toString();
+            missingNumbers.push(i);
+          } else {
+            cell.classList.remove("missing");
+            cell.innerText = grid[i];
+            infoLines.push(`Number ${i}: Appears ${grid[i].length} time(s)`);
+          }
+        }
+
+        const infoBox = document.getElementById("info");
+        let result = `<strong>Mulank (Root Number):</strong> ${mulank}<br>`;
+        result += `<strong>Bhagyank (Destiny Number):</strong> ${bhagyank}<br>`;
+        result += `<strong>Kua Number:</strong> ${kuaNumber}<br><br>`;
+
+        if (missingNumbers.length > 0) {
+          result += `<strong>Missing Numbers:</strong> ${missingNumbers.join(
+            ", "
+          )}<br><br>`;
+        } else {
+          result += `<strong>No Missing Numbers</strong><br><br>`;
+        }
+
+        result += infoLines.join("<br>");
+        infoBox.innerHTML = result;
+      }
+
+      function calculateChaldean() {
+        const name = document
+          .getElementById("nameInput")
+          .value.toUpperCase()
+          .replace(/[^A-Z]/g, "");
+        const chaldeanMap = {
+          A: 1,
+          B: 2,
+          C: 3,
+          D: 4,
+          E: 5,
+          F: 8,
+          G: 3,
+          H: 5,
+          I: 1,
+          J: 1,
+          K: 2,
+          L: 3,
+          M: 4,
+          N: 5,
+          O: 7,
+          P: 8,
+          Q: 1,
+          R: 2,
+          S: 3,
+          T: 4,
+          U: 6,
+          V: 6,
+          W: 6,
+          X: 5,
+          Y: 1,
+          Z: 7,
+        };
+        let total = 0;
+        for (const char of name) {
+          total += chaldeanMap[char] || 0;
+        }
+        const reduced = reduceToSingleDigit(total);
+        const nameInfo = document.getElementById("nameInfo");
+        nameInfo.innerHTML = `<strong>Chaldean Name Number:</strong> ${total} → ${reduced}`;
+      }
+    </script>
+  </body>
+</html>
