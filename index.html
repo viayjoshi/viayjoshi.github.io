@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <title>Loshu Grid - Numerology</title>
+    <title>Numerology Grids</title>
     <style>
       body {
         background-color: #121212;
@@ -14,7 +14,8 @@
         padding: 2rem;
       }
 
-      h1 {
+      h1,
+      h2 {
         color: #00ffcc;
         margin-bottom: 1rem;
       }
@@ -36,20 +37,27 @@
         cursor: pointer;
       }
 
+      .grid-container {
+        display: flex;
+        justify-content: space-around;
+        margin-top: 2rem;
+        gap: 4rem; /* Add this line to increase space between grids */
+      }
+
       .grid {
         display: grid;
         grid-template-columns: repeat(3, 80px);
         grid-template-rows: repeat(3, 80px);
         gap: 10px;
-        margin-top: 2rem;
       }
 
       .cell {
         background-color: #1e1e1e;
         border: 1px solid #00ffcc;
         display: flex;
+        flex-direction: column; /* Align items in a column */
         align-items: center;
-        justify-content: center;
+        justify-content: center; /* Center vertically */
         font-size: 18px;
         border-radius: 5px;
         padding: 5px;
@@ -74,24 +82,38 @@
     </style>
   </head>
   <body>
-    <h1>Loshu Grid</h1>
+    <h1>Loshu Grid & Vedic Grid</h1>
     <input type="date" id="dob" />
     <select id="gender">
       <option value="male">Male</option>
       <option value="female">Female</option>
     </select>
-    <button onclick="generateGrid()">Generate Grid</button>
+    <button onclick="generateGrids()">Generate Grids</button>
 
-    <div class="grid" id="loshuGrid">
-      <div class="cell" id="cell4"></div>
-      <div class="cell" id="cell9"></div>
-      <div class="cell" id="cell2"></div>
-      <div class="cell" id="cell3"></div>
-      <div class="cell" id="cell5"></div>
-      <div class="cell" id="cell7"></div>
-      <div class="cell" id="cell8"></div>
-      <div class="cell" id="cell1"></div>
-      <div class="cell" id="cell6"></div>
+    <div class="grid-container">
+      <div class="grid" id="loshuGrid">
+        <div class="cell" id="loshuCell4"><small>Wood</small></div>
+        <div class="cell" id="loshuCell9"><small>Fire</small></div>
+        <div class="cell" id="loshuCell2"><small>Earth</small></div>
+        <div class="cell" id="loshuCell3"><small>Wood</small></div>
+        <div class="cell" id="loshuCell5"><small>Earth</small></div>
+        <div class="cell" id="loshuCell7"><small>Metal</small></div>
+        <div class="cell" id="loshuCell8"><small>Earth</small></div>
+        <div class="cell" id="loshuCell1"><small>Water</small></div>
+        <div class="cell" id="loshuCell6"><small>Metal</small></div>
+      </div>
+
+      <div class="grid" id="vedicGrid">
+        <div class="cell" id="vedicCell3"><small>Jupiter</small></div>
+        <div class="cell" id="vedicCell6"><small>Venus</small></div>
+        <div class="cell" id="vedicCell9"><small>Mars</small></div>
+        <div class="cell" id="vedicCell2"><small>Moon</small></div>
+        <div class="cell" id="vedicCell5"><small>Mercury</small></div>
+        <div class="cell" id="vedicCell8"><small>Saturn</small></div>
+        <div class="cell" id="vedicCell1"><small>Sun</small></div>
+        <div class="cell" id="vedicCell4"><small>Rahu</small></div>
+        <div class="cell" id="vedicCell7"><small>Ketu</small></div>
+      </div>
     </div>
 
     <div class="info" id="info"></div>
@@ -114,7 +136,7 @@
         return num;
       }
 
-      function generateGrid() {
+      function generateGrids() {
         const dobInput = document.getElementById("dob").value;
         const gender = document.getElementById("gender").value;
         if (!dobInput) {
@@ -148,7 +170,7 @@
         fullDigits.push(...bhagyank.toString());
         fullDigits.push(...kuaNumber.toString());
 
-        const grid = {
+        const loshuGrid = {
           1: "",
           2: "",
           3: "",
@@ -159,24 +181,70 @@
           8: "",
           9: "",
         };
+
+        const vedicGrid = {
+          1: "",
+          2: "",
+          3: "",
+          4: "",
+          5: "",
+          6: "",
+          7: "",
+          8: "",
+          9: "",
+        };
+
         for (const digit of fullDigits) {
           if (digit === "0") continue;
-          grid[digit] += digit;
+          loshuGrid[digit] += digit;
+          vedicGrid[digit] += digit;
         }
 
         const missingNumbers = [];
         const infoLines = [];
 
+        // Update Loshu Grid
         for (let i = 1; i <= 9; i++) {
-          const cell = document.getElementById(`cell${i}`);
-          if (!grid[i]) {
-            cell.classList.add("missing");
-            cell.innerText = i.toString();
+          const loshuCell = document.getElementById(`loshuCell${i}`);
+          const existingText = loshuCell.querySelector("small").innerText; // Get existing text
+          if (!loshuGrid[i]) {
+            loshuCell.classList.add("missing");
+            loshuCell.innerHTML = `<small>${existingText}</small><br>${i}`;
             missingNumbers.push(i);
           } else {
-            cell.classList.remove("missing");
-            cell.innerText = grid[i];
-            infoLines.push(`Number ${i}: Appears ${grid[i].length} time(s)`);
+            loshuCell.classList.remove("missing");
+            loshuCell.innerHTML = `<small>${existingText}</small><br>${loshuGrid[i]}`;
+            infoLines.push(
+              `Loshu Number ${i}: Appears ${loshuGrid[i].length} time(s)`
+            );
+          }
+        }
+
+        // Update Vedic Grid
+        const vedicPositions = {
+          1: "vedicCell1",
+          2: "vedicCell2",
+          3: "vedicCell3",
+          4: "vedicCell4",
+          5: "vedicCell5",
+          6: "vedicCell6",
+          7: "vedicCell7",
+          8: "vedicCell8",
+          9: "vedicCell9",
+        };
+
+        for (let i = 1; i <= 9; i++) {
+          const vedicCell = document.getElementById(vedicPositions[i]);
+          const existingText = vedicCell.querySelector("small").innerText; // Get existing text
+          if (!vedicGrid[i]) {
+            vedicCell.classList.add("missing");
+            vedicCell.innerHTML = `<small>${existingText}</small><br>${i}`;
+          } else {
+            vedicCell.classList.remove("missing");
+            vedicCell.innerHTML = `<small>${existingText}</small><br>${vedicGrid[i]}`;
+            infoLines.push(
+              `Vedic Number ${i}: Appears ${vedicGrid[i].length} time(s)`
+            );
           }
         }
 
