@@ -83,7 +83,7 @@
   </head>
   <body>
     <h1>Loshu Grid & Vedic Grid</h1>
-    <input type="date" id="dob" />
+    <input type="text" id="dob" placeholder="DD-MM-YYYY" />
     <select id="gender">
       <option value="male">Male</option>
       <option value="female">Female</option>
@@ -126,6 +126,16 @@
     <div class="info" id="nameInfo"></div>
 
     <script>
+      document.getElementById("dob").addEventListener("input", function (event) {
+        const input = event.target.value;
+        const regex = /^\d{2}-\d{2}-\d{4}$/; // Matches DD-MM-YYYY format
+        if (!regex.test(input)) {
+          event.target.style.borderColor = "red"; // Highlight invalid input
+        } else {
+          event.target.style.borderColor = ""; // Reset border color for valid input
+        }
+      });
+
       function reduceToSingleDigit(num) {
         while (num > 9 && num !== 11 && num !== 22) {
           num = num
@@ -139,12 +149,14 @@
       function generateGrids() {
         const dobInput = document.getElementById("dob").value;
         const gender = document.getElementById("gender").value;
-        if (!dobInput) {
-          alert("Please enter a valid date of birth.");
+
+        const regex = /^\d{2}-\d{2}-\d{4}$/; // Matches DD-MM-YYYY format
+        if (!regex.test(dobInput)) {
+          alert("Please enter a valid date of birth in DD-MM-YYYY format.");
           return;
         }
 
-        const [year, month, day] = dobInput.split("-").map(Number);
+        const [day, month, year] = dobInput.split("-").map(Number);
         const dobDigits = (
           day.toString().padStart(2, "0") +
           month.toString().padStart(2, "0") +
